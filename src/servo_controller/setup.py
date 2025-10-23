@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'servo_node = servo_controller.servo_node:main',
+            'servo_controller_node = servo_controller.servo_controller_node:main',
         ],
     },
 )

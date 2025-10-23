@@ -3,9 +3,9 @@
 <package format="3">
   <name>servo_controller</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>ROS 2 package for controlling a servo motor with Raspberry Pi GPIO</description>
   <maintainer email="luca.brenzinger@gmail.com">lucab</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache 2.0</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
@@ -15,7 +15,6 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <exec_depend>python3-gpiozero</exec_depend>
-  <exec_depend>python3-pigpio</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

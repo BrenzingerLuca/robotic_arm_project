@@ -20,7 +20,7 @@ class ServoController(Node):
         # Adjust min_pulse_width and max_pulse_width for your specific servo
         # These values are typical for SG90 servos, but may need fine-tuning
         self.servo = Servo(self.servo_pin, min_pulse_width=0.5/1000, max_pulse_width=2.5/1000)
-        
+
         self.subscription = self.create_subscription(
             Float32,
             'servo_angle',
