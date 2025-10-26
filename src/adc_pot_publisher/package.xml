@@ -1,12 +1,11 @@
-
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>potentiometer_pub</name>
+  <name>adc_pot_publisher</name>
   <version>0.0.0</version>
-  <description>ROS 2 package for reading and publishing potentiometer values</description>
+  <description>Publishes potentiometer values from ADS7830</description>
   <maintainer email="luca.brenzinger@gmail.com">lucab</maintainer>
-  <license>Apache 2.0</license>
+  <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

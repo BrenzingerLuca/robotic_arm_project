@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'potentiometer_pub'
+package_name = 'adc_pot_publisher'
 
 setup(
     name=package_name,
@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='lucab',
     maintainer_email='luca.brenzinger@gmail.com',
-    description='ROS 2 package for publishing potentiometer values via I2C ADC',
+    description='Publishes potentiometer values from ADS7830',
     license='Apache-2.0',
     extras_require={
         'test': [
@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'potentiometer_pub_node = potentiometer_pub.potentiometer_pub:main',
+            'adc_pot_pub_node = adc_pot_publisher.adc_pot_publisher:main',
         ],
     },
 )
