@@ -16,6 +16,8 @@ class potentiometer_pub(Node):
         self.bus = smbus2.SMBus(1)  # Use I2C bus 1
         self.adc_address = 0x4b  # Adress of the ADC 
 
+        
+
     def timer_callback(self):
         # Read potentiometer value from ADC via I2C
         self.bus.write_byte(0x4b, 0x84)
