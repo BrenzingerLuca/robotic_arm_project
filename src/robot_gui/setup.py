@@ -7,8 +7,8 @@ setup(
     version='0.0.0',
     packages=find_packages(exclude=['test']),
     data_files=[
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
+        ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
+        ('share/' + package_name + '/ui', ['share/' + package_name + '/ui/robot_gui.ui']),
         ('share/' + package_name, ['package.xml']),
     ],
     install_requires=['setuptools'],
@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'robot_gui_node = robot_gui.robot_gui_node:main'
+            'robot_gui_node = robot_gui.robot_gui_node:main',
+            'robot_advanced_gui_node = robot_gui.robot_advanced_gui_node:main',
         ],
     },
 )

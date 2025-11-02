@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QSlider" name="horizontalSlider">
+  <widget class="QSlider" name="slider_joint3">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -26,7 +26,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
-  <widget class="QSlider" name="horizontalSlider_2">
+  <widget class="QSlider" name="slider_joint2">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -39,7 +39,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
-  <widget class="QSlider" name="horizontalSlider_3">
+  <widget class="QSlider" name="slider_joint1">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -52,43 +52,43 @@
     <enum>Qt::Horizontal</enum>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="label_slider_joint1">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>80</x>
      <y>240</y>
-     <width>101</width>
+     <width>171</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>Joint Angle 1:</string>
+    <string>Joint Angle 1: 0 degrees</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="label_slider_joint2">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>80</x>
      <y>280</y>
-     <width>101</width>
+     <width>161</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>Joint Angle 2:</string>
+    <string>Joint Angle 2: 0 degrees</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="label_slider_joint3">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>80</x>
      <y>320</y>
-     <width>101</width>
+     <width>161</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Joint Angle 3:</string>
+    <string>Joint Angle 3: 0 degrees</string>
    </property>
   </widget>
   <widget class="QComboBox" name="comboBox">
