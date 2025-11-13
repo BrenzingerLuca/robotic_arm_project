@@ -7,84 +7,69 @@ import rclpy
 from rclpy.node import Node
 
 from std_msgs.msg import Float32
+from sensor_msgs.msg import JointState
 
-class ServoOscillator(Node):
-    def __init__(self, channel=0, freq=50):
-        super().__init__('servo_oscillator')
+class ServoController(Node):
+    def __init__(self, num_servos=3, freq=50):
+        super().__init__('servo_controller')
         
         #using the adafruit_pca9685 lib to connect the pca to the pi via I2C
         i2c = busio.I2C(board.SCL, board.SDA)
         self.pca = PCA9685(i2c)
         self.pca.frequency = freq
 
-        #save the channel argument as a class property
-        self.channel = channel
+        #defining the channels of the pca where the servos are connected 
+        self.pca_channels = [0, 1, 2]
+
 
         #create a subscriber that subscribes to the /servo_angles topic
-        self.create_subscription(Float32, 'servo_angle', self.pot_callback, 10)
-        self.angle = 90.0
-        self.goal_angle = self.angle
-        # #oszillation angles
-        # self.angle_min = 45.0
-        # self.angle_max = 135.0
-        # self.pause = 2.0           # Sekunden Pause an Endpunkten
+        self.create_subscription(JointState, 'pot_angles', self.pot_callback, 10)
+        self.num_servos = num_servos
+        #Set the initial servo angles to 90 
+        self.angles = [90.0] * self.num_servos
+        self.goal_angles = self.angles
 
-        self.max_step = 1.0 #how much the servo can move during one update (every 0.02 seconds)
+        #defines how much the servo can move during one update (1 degree every 0.02 seconds)
+        self.max_step = 1.0 
         
-        #Control the speed of the servos
-        # self.period = 0.2          # Sekunden pro Bewegung (kleiner = schneller)
-
-        # self.direction = 1
-        # self.angle = self.angle_min
-        # self.last_update = time.time()
-        # self.wait_until = 0.0
-        
-        #Create a timer to update the servo position every 0.02 s
-        self.create_timer(0.02, self.update)
+        #Create a timer to update the servo position every 0.05 s
+        self.create_timer(0.05, self.update)
         self.get_logger().info("Init done")
 
     def pot_callback(self, msg):
-        self.goal_angle = msg.data
+        num_positions = len(msg.position)
+
+        for i in range(self.num_servos):
+            if i < num_positions:
+                # Setze den Zielwinkel für diesen Servo
+                self.goal_angles[i] = msg.position[i]
+            else:
+                # Wenn weniger Werte als Servos, behalte den aktuellen Winkel
+                self.get_logger().warn(f"Only ({num_positions}) potentiometers are publishing for ({self.num_servos}) servos")
         
     def angle_to_raw12(self, angle):
-        pulse_ms = 1.0 + (angle / 180.0)
+        pulse_ms = 0.5 + (angle / 180.0) * 2.0
         fraction = pulse_ms / (1000.0 / self.pca.frequency)
         return max(0, min(int(fraction * 4095), 4095))
 
     def update(self):
-        self.get_logger().info("in update call")
-         # Schrittweise Annäherung an den Zielwinkel
-        if abs(self.goal_angle - self.angle) < self.max_step:
-            self.angle = self.goal_angle
-        elif self.goal_angle > self.angle:
-            self.angle += self.max_step
-        else:
-            self.angle -= self.max_step
-        # now = time.time()
-        # if now < self.wait_until:
-        #     return
+        for i in range(self.num_servos):
+            # Schrittweise Annäherung an den Zielwinkel
+            angle_diff = self.goal_angles[i] - self.angles[i]
 
-        # step = (self.angle_max - self.angle_min) * 0.02 / self.period
-        # self.angle += self.direction * step
+            if abs(angle_diff) < self.max_step:
+                self.angles[i] = self.goal_angles[i]
 
-
-        # if self.angle >= self.angle_max:
-        #     self.angle = self.angle_max
-        #     self.direction = -1
-        #     self.wait_until = now + self.pause
-
-        # elif self.angle <= self.angle_min:
-        #     self.angle = self.angle_min
-        #     self.direction = 1
-        #     self.wait_until = now + self.pause
+            else:
+                self.angles[i] += angle_diff * 0.2
         
-        #calculate the pwm value and set it 
-        raw = self.angle_to_raw12(self.angle)
-        self.pca.channels[self.channel].duty_cycle = raw << 4
+            #calculate the pwm value and set it 
+            raw = self.angle_to_raw12(self.angles[i])
+            self.pca.channels[self.pca_channels[i]].duty_cycle = raw << 4
 
 def main(args=None):
     rclpy.init(args=args)
-    node = ServoOscillator()
+    node = ServoController()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
