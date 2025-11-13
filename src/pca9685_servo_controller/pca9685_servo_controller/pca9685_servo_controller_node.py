@@ -11,7 +11,7 @@ from std_msgs.msg import Float32
 class ServoOscillator(Node):
     def __init__(self, channel=0, freq=50):
         super().__init__('servo_oscillator')
-
+        
         #using the adafruit_pca9685 lib to connect the pca to the pi via I2C
         i2c = busio.I2C(board.SCL, board.SDA)
         self.pca = PCA9685(i2c)
@@ -41,6 +41,7 @@ class ServoOscillator(Node):
         
         #Create a timer to update the servo position every 0.02 s
         self.create_timer(0.02, self.update)
+        self.get_logger().info("Init done")
 
     def pot_callback(self, msg):
         self.goal_angle = msg.data
@@ -51,11 +52,11 @@ class ServoOscillator(Node):
         return max(0, min(int(fraction * 4095), 4095))
 
     def update(self):
-
+        self.get_logger().info("in update call")
          # Schrittweise Annäherung an den Zielwinkel
-        if abs(self.target_angle - self.angle) < self.max_step:
-            self.angle = self.target_angle
-        elif self.target_angle > self.angle:
+        if abs(self.goal_angle - self.angle) < self.max_step:
+            self.angle = self.goal_angle
+        elif self.goal_angle > self.angle:
             self.angle += self.max_step
         else:
             self.angle -= self.max_step
