@@ -23,7 +23,7 @@ class ServoController(Node):
 
 
         #create a subscriber that subscribes to the /servo_angles topic
-        self.create_subscription(JointState, 'slider_messages', self.pot_callback, 10)
+        self.create_subscription(JointState, 'joint_angles', self.pot_callback, 10)
         self.num_servos = num_servos
         #Set the initial servo angles to 90 
         self.angles = [90.0] * self.num_servos
