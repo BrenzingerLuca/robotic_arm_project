@@ -22,7 +22,7 @@ class JazzyGuiNode(Node):
         super().__init__(node_name)
 
         #Create a publisher for the angle values of the slider 
-        self.slider_publisher = self.create_publisher(JointState, 'slider_messages', 10)
+        self.slider_publisher = self.create_publisher(JointState, 'joint_angles', 10)
         self.msg = JointState()
         self.msg.name = ['joint1', 'joint2', 'joint3']
 
@@ -125,8 +125,10 @@ class UiWindow:
         self.slider_label_2.setText(f"Joint Angle 2: {value_2} degrees")
         self.slider_label_3.setText(f"Joint Angle 3: {value_3} degrees")
 
-        self.node.msg.position = [value_1, value_2, value_3]
-        self.node.slider_publisher.publish(self.node.msg)
+        if self.node.gui_controll_enabled.data:
+
+            self.node.msg.position = [value_1, value_2, value_3]
+            self.node.slider_publisher.publish(self.node.msg)
 
         self.node.get_logger().info(f"Published slider value: {self.node.msg.position}")
 
