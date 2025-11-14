@@ -7,10 +7,11 @@ import rclpy
 from rclpy.node import Node
 from ament_index_python.packages import get_package_share_directory
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Bool
 
 #PySide imports
 from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtWidgets import QApplication, QSlider, QLabel 
+from PySide6.QtWidgets import QApplication, QSlider, QLabel, QComboBox
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 
@@ -20,10 +21,15 @@ class JazzyGuiNode(Node):
     def __init__(self, node_name: str = 'jazzy_gui_node'):
         super().__init__(node_name)
 
+        #Create a publisher for the angle values of the slider 
         self.slider_publisher = self.create_publisher(JointState, 'slider_messages', 10)
         self.msg = JointState()
         self.msg.name = ['joint1', 'joint2', 'joint3']
 
+        #Create a publisher for the Controll-Selection
+        self.controll_state_publisher = self.create_publisher(Bool, 'controll_state', 10)
+        self.gui_controll_enabled = Bool()
+        self.gui_controll_enabled.data = True
     
         self.get_logger().info('JazzyGuiNode initialisiert')
 
@@ -51,6 +57,9 @@ class UiWindow:
         #initiate all the sliders 
         self.init_sliders()
 
+        #initialise the Dropdown-Menu to choose the controll type
+        self.init_controll_dropdown() 
+
         #initiate and start a timer to run ros2 callbacks
         self.ros_spin_time = 100 #ms
         self.ros_spin_timer = QtCore.QTimer()
@@ -71,7 +80,7 @@ class UiWindow:
         for slider in self.slider_arr:
             slider.setMinimum(0)
             slider.setMaximum(180)
-            slider.setValue(0)
+            slider.setValue(90)
             slider.setSingleStep(1)
             slider.valueChanged.connect(self.slider_value_changed)
 
@@ -81,9 +90,24 @@ class UiWindow:
 
         self.node.get_logger().info(f"Initiated and connected all the sliders")
 
+    def init_controll_dropdown(self):
+        self.controll_dropdown = self.window.findChild(QComboBox, "controll_state_box")
+        self.controll_dropdown.setCurrentIndex(1)
+        self.controll_dropdown.currentTextChanged.connect(self.update_control_state)
+
     def show(self):
         self.window.show()
 
+    def update_control_state(self, text):
+        if text == "GUI-Control":
+            self.node.gui_controll_enabled.data = True
+            self.node.get_logger().info("GUI Controll Enabled")
+        else:
+            self.node.gui_controll_enabled.data = False
+            self.node.get_logger().info("Potentiometer Controll Enabled")
+        
+        self.node.controll_state_publisher.publish(self.node.gui_controll_enabled)
+        
     @QtCore.Slot()
     def spin_ros_node(self):
         rclpy.spin_once(self.node, timeout_sec=0)
