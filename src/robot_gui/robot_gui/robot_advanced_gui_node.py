@@ -69,8 +69,8 @@ class UiWindow:
 
         #set the value step and range for each slider 
         for slider in self.slider_arr:
-            slider.setMinimum(-90)
-            slider.setMaximum(90)
+            slider.setMinimum(0)
+            slider.setMaximum(180)
             slider.setValue(0)
             slider.setSingleStep(1)
             slider.valueChanged.connect(self.slider_value_changed)

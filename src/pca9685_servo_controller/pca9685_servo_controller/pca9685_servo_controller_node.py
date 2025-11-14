@@ -23,7 +23,7 @@ class ServoController(Node):
 
 
         #create a subscriber that subscribes to the /servo_angles topic
-        self.create_subscription(JointState, 'pot_angles', self.pot_callback, 10)
+        self.create_subscription(JointState, 'slider_messages', self.pot_callback, 10)
         self.num_servos = num_servos
         #Set the initial servo angles to 90 
         self.angles = [90.0] * self.num_servos
@@ -33,7 +33,7 @@ class ServoController(Node):
         self.max_step = 1.0 
         
         #Create a timer to update the servo position every 0.05 s
-        self.create_timer(0.05, self.update)
+        self.create_timer(0.02, self.update)
         self.get_logger().info("Init done")
 
     def pot_callback(self, msg):
