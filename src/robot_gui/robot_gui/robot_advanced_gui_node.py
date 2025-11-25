@@ -1,6 +1,10 @@
-#necessary to run the GUI and find the .ui file
+#Necessary to run the GUI and find the .ui file
 import sys
+import signal
 from pathlib import Path
+
+#To be able to use Pi
+from math import pi 
 
 #ROS2 specific imports
 import rclpy
@@ -8,6 +12,7 @@ from rclpy.node import Node
 from ament_index_python.packages import get_package_share_directory
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Bool
+from builtin_interfaces.msg import Time
 
 #PySide imports
 from PySide6 import QtCore, QtWidgets, QtGui
@@ -22,9 +27,9 @@ class JazzyGuiNode(Node):
         super().__init__(node_name)
 
         #Create a publisher for the angle values of the slider 
-        self.slider_publisher = self.create_publisher(JointState, 'joint_angles', 10)
+        self.slider_publisher = self.create_publisher(JointState, 'joint_states', 10)
         self.msg = JointState()
-        self.msg.name = ['joint1', 'joint2', 'joint3']
+        self.msg.name = ['joint_1', 'joint_2', 'joint_3']
 
         #Create a publisher for the Controll-Selection
         self.controll_state_publisher = self.create_publisher(Bool, 'controll_state', 10)
@@ -125,9 +130,15 @@ class UiWindow:
         self.slider_label_2.setText(f"Joint Angle 2: {value_2} degrees")
         self.slider_label_3.setText(f"Joint Angle 3: {value_3} degrees")
 
+        # Convert 0-180 -> -pi/2 ... pi/2
+        rad_1 = (value_1 - 90) * pi / 180
+        rad_2 = (value_2 - 90) * pi / 180
+        rad_3 = (value_3 - 90) * pi / 180
+
         if self.node.gui_controll_enabled.data:
 
-            self.node.msg.position = [value_1, value_2, value_3]
+            self.node.msg.position = [rad_1, rad_2, rad_3]
+            self.node.msg.header.stamp = self.node.get_clock().now().to_msg()
             self.node.slider_publisher.publish(self.node.msg)
 
         self.node.get_logger().info(f"Published slider value: {self.node.msg.position}")
@@ -155,6 +166,16 @@ def main(argv=None):
     app = QApplication(argv)
     ui = UiWindow(str(ui_path), node)
     ui.show()
+
+    #Signal-Handler to close the window on Strg+C
+    def signal_handler(sig, frame):
+        node.get_logger().info("SIGINT empfangen, schließe GUI...")
+        ui.window.close()          # Fenster schließen
+        node.destroy_node()        # ROS2 Node sauber zerstören
+        rclpy.shutdown()           # ROS2 sauber herunterfahren
+        app.quit()                 # Qt Event Loop beenden
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     try:
         return_code = app.exec()

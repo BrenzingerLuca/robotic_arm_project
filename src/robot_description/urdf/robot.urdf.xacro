@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="https://www.ros.org/wiki/xacro" name="arduinobot">
+
+    <xacro:property name="effort_big_servo" value="1.32" />
+    <xacro:property name="velocity_big_servo" value="6.16" />
+    <xacro:property name="PI" value="3.14159" />
+
+    <link name="world"/>    
+
+    <link name="base_link">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/Base_Bottom.stl" scale="0.01 0.01 0.01"/>
+                </geometry>
+            <material name="gray">
+                <color rgba="0.2 0.2 0.2 1"/>
+            </material>
+        </visual> 
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/Base_Bottom.stl" scale="0.01 0.01 0.01"/>
+                </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.312"/>
+            <inertia ixx="0.0008" ixy="0.0" ixz="0.0" iyy="0.0008" iyz="0.0" izz="0.0008"/>
+        </inertial>
+    </link>
+    
+    <joint name="virtual_joint" type="fixed">
+        <parent link="world"/>
+        <child link="base_link"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/> 
+    </joint>
+
+    <link name="base_plate">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/Base_Plate_with_Servo.stl" scale="0.01 0.01 0.01"/>
+            </geometry>
+            <material name="black">
+                <color rgba="0 0 0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/Base_Plate_with_Servo.stl" scale="0.01 0.01 0.01"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.135"/>
+            <inertia ixx="0.0004" ixy="0.0" ixz="0.0" iyy="0.0004" iyz="0.0" izz="0.0004"/>
+        </inertial>
+    </link>
+    
+    <joint name="joint_1" type="revolute">
+        <parent link="base_link"/>
+        <child link="base_plate"/>
+        <axis xyz="0 0 1"/>
+        <origin rpy="0 0 0" xyz="0 0 0.5"/>
+        <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort_big_servo}" velocity="${velocity_big_servo}"/>
+    </joint>
+
+    <link name="first_arm">
+        <visual>
+            <origin rpy="0 ${PI/2} 0" xyz="-0.1 -0.1 -0.33"/>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/Joint_1_with_Servo.stl" scale="0.01 0.01 0.01"/>
+            </geometry>
+            <material name="green">
+                <color rgba="0 1 0 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 ${PI/2} 0" xyz="-0.1 -0.1 -0.33"/>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/Joint_1_with_Servo.stl" scale="0.01 0.01 0.01"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.070"/>
+            <inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.0002" iyz="0.0" izz="0.0002"/>
+        </inertial>
+    </link>
+    
+    <joint name="joint_2" type="revolute">
+        <parent link="base_plate"/>
+        <child link="first_arm"/>
+        <axis xyz="0 0 1"/>
+        <origin rpy="${PI/2} 0 ${PI}" xyz="0 0.335 0.28"/>
+        <limit lower="-${PI/2}" upper="${PI/2}" effort="${effort_big_servo}" velocity="${velocity_big_servo}"/>
+    </joint>
+</robot>

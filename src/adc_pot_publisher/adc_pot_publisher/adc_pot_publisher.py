@@ -1,5 +1,6 @@
 import rclpy
 import time
+import math
 from rclpy.node import Node
 from std_msgs.msg import Float32
 from sensor_msgs.msg import JointState
@@ -35,7 +36,7 @@ class PotentiometerPublisher(Node):
         adc_values = [self.read_channel(i) for i in range(self.num_servos)]
 
         # Map 0-255 auf 0-180 Grad
-        angles = [(v / 255.0) * 180.0 for v in adc_values]
+        angles = [((v / 255.0) * math.pi) - (math.pi / 2) for v in adc_values]
 
         # JointState Nachricht erstellen
         msg = JointState()

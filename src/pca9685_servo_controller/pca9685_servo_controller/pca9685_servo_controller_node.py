@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import time
+import math
+
 import board
 import busio
 from adafruit_pca9685 import PCA9685
+
 import rclpy
 from rclpy.node import Node
 
@@ -21,9 +24,8 @@ class ServoController(Node):
         #defining the channels of the pca where the servos are connected 
         self.pca_channels = [0, 1, 2]
 
-
-        #create a subscriber that subscribes to the /servo_angles topic
-        self.create_subscription(JointState, 'joint_angles', self.pot_callback, 10)
+        #create a subscriber that subscribes to the /joint_states topic
+        self.create_subscription(JointState, 'joint_states', self.pot_callback, 10)
         self.num_servos = num_servos
         #Set the initial servo angles to 90 
         self.angles = [90.0] * self.num_servos
@@ -42,7 +44,10 @@ class ServoController(Node):
         for i in range(self.num_servos):
             if i < num_positions:
                 # Setze den Zielwinkel für diesen Servo
-                self.goal_angles[i] = msg.position[i]
+                # Radiant -> Grad und verschiebe von [-90,90] auf [0,180]
+                rad = msg.position[i]
+                deg = math.degrees(rad) + 90.0  # -pi/2 -> 0°, pi/2 -> 180°
+                self.goal_angles[i] = deg
             else:
                 # Wenn weniger Werte als Servos, behalte den aktuellen Winkel
                 self.get_logger().warn(f"Only ({num_positions}) potentiometers are publishing for ({self.num_servos}) servos")
