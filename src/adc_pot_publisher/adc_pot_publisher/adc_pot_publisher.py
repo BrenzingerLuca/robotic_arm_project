@@ -40,7 +40,8 @@ class PotentiometerPublisher(Node):
 
         # JointState Nachricht erstellen
         msg = JointState()
-        msg.name = [f'joint_{i}' for i in range(self.num_servos)]
+        #Names need to be the same as in the urdf of the robot
+        msg.name = [f'joint_{i+1}' for i in range(self.num_servos)]
         msg.position = angles
         msg.header.stamp = self.get_clock().now().to_msg()
         
