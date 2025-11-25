@@ -14,7 +14,7 @@ class PotentiometerPublisher(Node):
     def __init__(self, num_servos=3):
         super().__init__('potentiometer_pub')
 
-        self.publisher_ = self.create_publisher(JointState, 'joint_angles', 10)
+        self.publisher_ = self.create_publisher(JointState, 'joint_states', 10)
         self.timer = None
 
         self.gui_controll_state_subscriber = self.create_subscription(Bool, 'controll_state', self.controll_state_callback, 10)
