@@ -91,7 +91,7 @@
     <string>Joint Angle 3: 0 degrees</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboBox">
+  <widget class="QComboBox" name="mode_dropdown">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -266,7 +266,7 @@
     <string>X:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_2">
+  <widget class="QLineEdit" name="current_pos_y">
    <property name="geometry">
     <rect>
      <x>220</x>
@@ -305,7 +305,7 @@
     <string>Y:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_5">
+  <widget class="QLineEdit" name="current_pos_z">
    <property name="geometry">
     <rect>
      <x>300</x>
@@ -318,7 +318,7 @@
     <string>Z:</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_6">
+  <widget class="QLineEdit" name="current_pos_x">
    <property name="geometry">
     <rect>
      <x>130</x>

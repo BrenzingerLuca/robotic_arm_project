@@ -1,6 +1,8 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32
+from std_msgs.msg import String
+
 from gpiozero import Servo
 
 #Optional kann man noch pigpio oder ähnliche bibs einfügen für präzisere pwm
@@ -21,16 +23,18 @@ class ServoController(Node):
         # These values are typical for SG90 servos, but may need fine-tuning
         self.servo = Servo(self.servo_pin, min_pulse_width=0.5/1000, max_pulse_width=2.5/1000)
 
-        self.subscription = self.create_subscription(
-            Float32,
-            'servo_angle',
-            self.angle_callback,
-            10
-        )
+        self.robot_mode = "Simulation Mode"
+        self.robot_mod_sub = self.create_subscription(String, 'robot_mode', self.update_robot_mode, 10)
+
+        self.subscription = self.create_subscription(Float32, 'servo_angle', self.angle_callback, 10)
         self.subscription  # prevent unused variable warning
         self.get_logger().info(f'Servo Controller Node started on GPIO {self.servo_pin}. Ready to receive angles on /servo_angle topic.')
 
     def angle_callback(self, msg):
+        
+        if self.robot_mode == "Simulation Mode":
+            return
+        
         angle_degrees = msg.data
         self.get_logger().info(f'Received angle: {angle_degrees:.2f} degrees')
 
@@ -43,6 +47,9 @@ class ServoController(Node):
             self.get_logger().info(f'Set servo value to: {servo_value:.2f}')
         else:
             self.get_logger().warn(f'Angle {angle_degrees:.2f} out of range (0-180 degrees). Not moving servo.')
+    
+    def update_robot_mode(self, msg):
+        self.robot_mode = msg.data
 
 def main(args=None):
     rclpy.init(args=args)

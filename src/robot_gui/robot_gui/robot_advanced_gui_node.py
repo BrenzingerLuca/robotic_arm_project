@@ -12,11 +12,13 @@ from rclpy.node import Node
 from ament_index_python.packages import get_package_share_directory
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Bool
+from std_msgs.msg import String
+from geometry_msgs.msg import PoseStamped
 from builtin_interfaces.msg import Time
 
 #PySide imports
 from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtWidgets import QApplication, QSlider, QLabel, QComboBox
+from PySide6.QtWidgets import QApplication, QSlider, QLabel, QComboBox, QLineEdit
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 
@@ -35,10 +37,13 @@ class JazzyGuiNode(Node):
         self.controll_state_publisher = self.create_publisher(Bool, 'controll_state', 10)
         self.gui_controll_enabled = Bool()
         self.gui_controll_enabled.data = True
+
+        #Create a publisher for the robot mode
+        self.robot_mode_publisher = self.create_publisher(String, 'robot_mode', 10)
+        self.robot_mode = String()
+        self.robot_mode.data = "Simulation Mode"
     
         self.get_logger().info('JazzyGuiNode initialisiert')
-
-
 
 class UiWindow:
     
@@ -46,24 +51,33 @@ class UiWindow:
         self.node = node
         self.ui_path = ui_path
 
+        #Create a subscriber for to receive the forward kinematics information
+        self.fk_subscriber = self.node.create_subscription(PoseStamped, 'fk_info', self.update_line_edits, 10)
+
         #loading the .ui file generated with the QtDesigner
         loader = QUiLoader()
         ui_file = QFile(self.ui_path)
         if not ui_file.open(QFile.ReadOnly):
-            raise RuntimeError(f"Kann UI-Datei nicht öffnen: {self.ui_path}")
+            raise RuntimeError(f"Can't open UI-File: {self.ui_path}")
         try:
             self.window = loader.load(ui_file)
         finally:
             ui_file.close()
 
         if self.window is None:
-            raise RuntimeError(f"UI-Laden fehlgeschlagen: {self.ui_path}")
+            raise RuntimeError(f"Loading the UI has failed: {self.ui_path}")
 
         #initiate all the sliders 
         self.init_sliders()
 
+        #initialise the Dropdown-Menu to choose the robot Mode
+        self.init_mode_dropdown()
+        
         #initialise the Dropdown-Menu to choose the controll type
         self.init_controll_dropdown() 
+
+        #initiate the QLineEdits
+        self.init_line_edits()
 
         #initiate and start a timer to run ros2 callbacks
         self.ros_spin_time = 100 #ms
@@ -96,12 +110,26 @@ class UiWindow:
         self.node.get_logger().info(f"Initiated and connected all the sliders")
 
     def init_controll_dropdown(self):
+
         self.controll_dropdown = self.window.findChild(QComboBox, "controll_state_box")
         self.controll_dropdown.setCurrentIndex(1)
         self.controll_dropdown.currentTextChanged.connect(self.update_control_state)
+    
+    def init_mode_dropdown(self):
 
-    def show(self):
-        self.window.show()
+        self.mode_dropdown = self.window.findChild(QComboBox, "mode_dropdown")
+        self.mode_dropdown.setCurrentIndex(1)
+        self.mode_dropdown.currentTextChanged.connect(self.update_robot_mode)
+
+    def init_line_edits(self):
+
+        self.current_pos_x = self.window.findChild(QLineEdit, "current_pos_x")
+        self.current_pos_y = self.window.findChild(QLineEdit, "current_pos_y")
+        self.current_pos_z = self.window.findChild(QLineEdit, "current_pos_z")
+
+        self.current_pos_x.setText("X: 0.0")
+        self.current_pos_y.setText("Y: 0.0")
+        self.current_pos_z.setText("Z: 0.0")
 
     def update_control_state(self, text):
         if text == "GUI-Control":
@@ -112,7 +140,30 @@ class UiWindow:
             self.node.get_logger().info("Potentiometer Controll Enabled")
         
         self.node.controll_state_publisher.publish(self.node.gui_controll_enabled)
+    
+    def update_robot_mode(self, text):
+        if text == "Hardware Mode":
+            self.node.robot_mode.data = "Hardware Mode"
+            self.node.get_logger().info("Changed Robot Mode to: Hardware Mode")
+        elif text == "Simulation Mode":
+            self.node.robot_mode.data = "Simulation Mode"
+            self.node.get_logger().info("Changed Robot Mode to: Simulation Mode")
         
+        self.node.robot_mode_publisher.publish(self.node.robot_mode)
+
+    def update_line_edits(self, msg):
+
+        x_mm = int(round(msg.pose.position.x * 100))
+        y_mm = int(round(msg.pose.position.y * 100))
+        z_mm = int(round(msg.pose.position.z * 100))
+
+        self.current_pos_x.setText(f"X: {x_mm} mm")
+        self.current_pos_y.setText(f"Y: {y_mm} mm")
+        self.current_pos_z.setText(f"Z: {z_mm} mm")
+
+    def show(self):
+        self.window.show()   
+
     @QtCore.Slot()
     def spin_ros_node(self):
         rclpy.spin_once(self.node, timeout_sec=0)
