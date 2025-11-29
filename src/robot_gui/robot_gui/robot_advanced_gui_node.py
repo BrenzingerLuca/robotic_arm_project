@@ -54,6 +54,9 @@ class UiWindow:
         #Create a subscriber for to receive the forward kinematics information
         self.fk_subscriber = self.node.create_subscription(PoseStamped, 'fk_info', self.update_line_edits, 10)
 
+        #Create a subscriber to update the slider values when in pot controll mode
+        self.pot_subscriber = self.node.create_subscription(JointState, 'joint_states', self.sync_slider_to_pot_values, 10)
+
         #loading the .ui file generated with the QtDesigner
         loader = QUiLoader()
         ui_file = QFile(self.ui_path)
@@ -160,6 +163,38 @@ class UiWindow:
         self.current_pos_x.setText(f"X: {x_mm} mm")
         self.current_pos_y.setText(f"Y: {y_mm} mm")
         self.current_pos_z.setText(f"Z: {z_mm} mm")
+    
+    def sync_slider_to_pot_values(self, msg):
+        if self.node.gui_controll_enabled.data:
+            return
+
+        num_positions = len(msg.position)
+        if num_positions < 3:
+            return
+
+        # Convert radians → 0–180°
+        deg_1 = int(round((msg.position[0] * 180 / pi) + 90))
+        deg_2 = int(round((msg.position[1] * 180 / pi) + 90))
+        deg_3 = int(round((msg.position[2] * 180 / pi) + 90))
+
+        # Block Qt signals to avoid recursive callbacks
+        self.slider_joint_1.blockSignals(True)
+        self.slider_joint_2.blockSignals(True)
+        self.slider_joint_3.blockSignals(True)
+
+        self.slider_joint_1.setValue(deg_1)
+        self.slider_joint_2.setValue(deg_2)
+        self.slider_joint_3.setValue(deg_3)
+
+        self.slider_joint_1.blockSignals(False)
+        self.slider_joint_2.blockSignals(False)
+        self.slider_joint_3.blockSignals(False)
+
+        # Update labels manually
+        self.slider_label_1.setText(f"Joint Angle 1: {deg_1} degrees")
+        self.slider_label_2.setText(f"Joint Angle 2: {deg_2} degrees")
+        self.slider_label_3.setText(f"Joint Angle 3: {deg_3} degrees")
+
 
     def show(self):
         self.window.show()   
