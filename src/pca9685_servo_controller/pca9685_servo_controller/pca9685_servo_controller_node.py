@@ -9,7 +9,7 @@ from adafruit_pca9685 import PCA9685
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import Float32
+from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 
 class ServoController(Node):
@@ -24,6 +24,8 @@ class ServoController(Node):
         #defining the channels of the pca where the servos are connected 
         self.pca_channels = [0, 1, 2]
 
+        self.robot_mode = "Simulation Mode"
+        self.robot_mod_sub = self.create_subscription(String, 'robot_mode', self.update_robot_mode, 10)
         #create a subscriber that subscribes to the /joint_states topic
         self.create_subscription(JointState, 'joint_states', self.pot_callback, 10)
         self.num_servos = num_servos
@@ -58,6 +60,9 @@ class ServoController(Node):
         return max(0, min(int(fraction * 4095), 4095))
 
     def update(self):
+        if self.robot_mode == "Simulation Mode":
+            return
+        
         for i in range(self.num_servos):
             # Schrittweise Annäherung an den Zielwinkel
             angle_diff = self.goal_angles[i] - self.angles[i]
@@ -71,6 +76,13 @@ class ServoController(Node):
             #calculate the pwm value and set it 
             raw = self.angle_to_raw12(self.angles[i])
             self.pca.channels[self.pca_channels[i]].duty_cycle = raw << 4
+
+    def update_robot_mode(self, msg):
+        self.robot_mode = msg.data
+        if self.robot_mode == "Simulation Mode":
+            self.get_logger().info("Robot Mode changed to Simulation Mode: Servo controll disabled")
+        else:
+            self.get_logger().info("Robot Mode changed to Hardware Mode: Servo controll enabled.")
 
 def main(args=None):
     rclpy.init(args=args)
