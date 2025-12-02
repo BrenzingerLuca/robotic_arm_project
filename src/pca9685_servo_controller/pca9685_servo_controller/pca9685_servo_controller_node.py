@@ -13,7 +13,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 
 class ServoController(Node):
-    def __init__(self, num_servos=3, freq=50):
+    def __init__(self, num_servos=4, freq=50):
         super().__init__('servo_controller')
         
         #using the adafruit_pca9685 lib to connect the pca to the pi via I2C
@@ -22,7 +22,7 @@ class ServoController(Node):
         self.pca.frequency = freq
 
         #defining the channels of the pca where the servos are connected 
-        self.pca_channels = [0, 1, 2]
+        self.pca_channels = [0, 1, 2, 3]
 
         self.robot_mode = "Simulation Mode"
         self.robot_mod_sub = self.create_subscription(String, 'robot_mode', self.update_robot_mode, 10)

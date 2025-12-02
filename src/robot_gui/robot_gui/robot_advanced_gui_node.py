@@ -31,7 +31,7 @@ class JazzyGuiNode(Node):
         #Create a publisher for the angle values of the slider 
         self.slider_publisher = self.create_publisher(JointState, 'joint_states', 10)
         self.msg = JointState()
-        self.msg.name = ['joint_1', 'joint_2', 'joint_3']
+        self.msg.name = ['joint_1', 'joint_2', 'joint_3', 'gripper']
 
         #Create a publisher for the Controll-Selection
         self.controll_state_publisher = self.create_publisher(Bool, 'controll_state', 10)
@@ -95,6 +95,7 @@ class UiWindow:
         self.slider_joint_1 = self.window.findChild(QSlider, "slider_joint1")
         self.slider_joint_2 = self.window.findChild(QSlider, "slider_joint2")
         self.slider_joint_3 = self.window.findChild(QSlider, "slider_joint3")
+        self.slider_gripper = self.window.findChild(QSlider, "gripper_slider")
 
         self.slider_arr = [self.slider_joint_1, self.slider_joint_2, self.slider_joint_3]
 
@@ -105,6 +106,12 @@ class UiWindow:
             slider.setValue(90)
             slider.setSingleStep(1)
             slider.valueChanged.connect(self.slider_value_changed)
+
+        self.slider_gripper.setMinimum(90)
+        self.slider_gripper.setMaximum(180)
+        self.slider_gripper.setValue(90)
+        self.slider_gripper.setSingleStep(1)
+        self.slider_gripper.valueChanged.connect(self.slider_value_changed)
 
         self.slider_label_1 = self.window.findChild(QLabel,"label_slider_joint1")
         self.slider_label_2 = self.window.findChild(QLabel,"label_slider_joint2")
@@ -211,6 +218,7 @@ class UiWindow:
         value_1 = float(self.slider_joint_1.value())
         value_2 = float(self.slider_joint_2.value())
         value_3 = float(self.slider_joint_3.value())
+        value_4 = float(self.slider_gripper.value())
 
         self.slider_label_1.setText(f"Joint Angle 1: {value_1} degrees")
         self.slider_label_2.setText(f"Joint Angle 2: {value_2} degrees")
@@ -220,10 +228,11 @@ class UiWindow:
         rad_1 = (value_1 - 90) * pi / 180
         rad_2 = (value_2 - 90) * pi / 180
         rad_3 = (value_3 - 90) * pi / 180
+        rad_4 = (value_4 - 90) * pi / 180
 
         if self.node.gui_controll_enabled.data:
 
-            self.node.msg.position = [rad_1, rad_2, rad_3]
+            self.node.msg.position = [rad_1, rad_2, rad_3, rad_4]
             self.node.msg.header.stamp = self.node.get_clock().now().to_msg()
             self.node.slider_publisher.publish(self.node.msg)
 
