@@ -31,7 +31,7 @@ class JazzyGuiNode(Node):
         #Create a publisher for the angle values of the slider 
         self.slider_publisher = self.create_publisher(JointState, 'joint_states', 10)
         self.msg = JointState()
-        self.msg.name = ['joint_1', 'joint_2', 'joint_3', 'gripper']
+        self.msg.name = ['gripper', 'joint_1', 'joint_2', 'joint_3']
 
         #Create a publisher for the Controll-Selection
         self.controll_state_publisher = self.create_publisher(Bool, 'controll_state', 10)
@@ -238,14 +238,15 @@ class UiWindow:
 
         self.node.get_logger().info(f"Published slider value: {self.node.msg.position}")
 
-        value_1 = float(self.slider_joint_1.value())
-        value_2 = float(self.slider_joint_2.value())
-        value_3 = float(self.slider_joint_3.value())
-        value_4 = float(self.slider_gripper.value())
+        value_1 = float(self.slider_gripper.value())
+        value_2 = float(self.slider_joint_1.value())
+        value_3 = float(self.slider_joint_2.value())
+        value_4 = float(self.slider_joint_3.value())
+        
 
-        self.slider_label_1.setText(f"Joint Angle 1: {value_1} degrees")
-        self.slider_label_2.setText(f"Joint Angle 2: {value_2} degrees")
-        self.slider_label_3.setText(f"Joint Angle 3: {value_3} degrees")
+        self.slider_label_1.setText(f"Joint Angle 1: {value_2} degrees")
+        self.slider_label_2.setText(f"Joint Angle 2: {value_3} degrees")
+        self.slider_label_3.setText(f"Joint Angle 3: {value_4} degrees")
 
         # Convert 0-180 -> -pi/2 ... pi/2
         rad_1 = (value_1 - 90) * pi / 180

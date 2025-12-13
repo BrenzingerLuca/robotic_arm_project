@@ -38,11 +38,13 @@ class PotentiometerPublisher(Node):
         # Map 0-255 auf 0-180 Grad
         angles = [((v / 255.0) * 3.14) - (3.14 / 2) for v in adc_values]
 
+        gripper_pos = 0.1
+
         # JointState Nachricht erstellen
         msg = JointState()
         #Names need to be the same as in the urdf of the robot
-        msg.name = [f'joint_{i+1}' for i in range(self.num_servos)]
-        msg.position = angles
+        msg.name = ['gripper'] + [f'joint_{i+1}' for i in range(self.num_servos)]
+        msg.position = [gripper_pos] + angles
         msg.header.stamp = self.get_clock().now().to_msg()
         
         self.publisher_.publish(msg)
