@@ -88,6 +88,28 @@ class UiWindow:
         self.ros_spin_timer.timeout.connect(self.spin_ros_node)
         self.ros_spin_timer.start(self.ros_spin_time)
 
+        #publish the initial home pose of the robot
+        #define the values of the joints and the gripper in radiants
+        self.joint1_home = 0
+        self.joint2_home = -pi/16
+        self.joint3_home = pi/2
+        self.gripper_home = pi/4
+        self.home_pos = [self.joint1_home, self.joint2_home, self.joint3_home, self.gripper_home] 
+
+        #publish the values
+        self.node.msg.position = self.home_pos
+        self.node.msg.header.stamp = self.node.get_clock().now().to_msg()
+        self.node.slider_publisher.publish(self.node.msg)
+
+        # Convert radians → 0–180°
+        deg_1, deg_2, deg_3, deg_gripper = self.rad_vec_to_deg_0_180(self.home_pos)
+        
+        # Set the initial slider values according to the home position
+        self.slider_joint_1.setValue(deg_1)
+        self.slider_joint_2.setValue(deg_2)
+        self.slider_joint_3.setValue(deg_3)
+        self.slider_gripper.setValue(deg_gripper)
+
         
     def init_sliders(self):
 
@@ -180,9 +202,7 @@ class UiWindow:
             return
 
         # Convert radians → 0–180°
-        deg_1 = int(round((msg.position[0] * 180 / pi) + 90))
-        deg_2 = int(round((msg.position[1] * 180 / pi) + 90))
-        deg_3 = int(round((msg.position[2] * 180 / pi) + 90))
+        deg_1, deg_2, deg_3 = self.rad_vec_to_deg_0_180(msg.position)
 
         # Block Qt signals to avoid recursive callbacks
         self.slider_joint_1.blockSignals(True)
@@ -204,7 +224,10 @@ class UiWindow:
 
 
     def show(self):
-        self.window.show()   
+        self.window.show()  
+
+    def rad_vec_to_deg_0_180(self, rad_list):
+        return [int(round((r * 180 / pi) + 90)) for r in rad_list] 
 
     @QtCore.Slot()
     def spin_ros_node(self):
@@ -237,6 +260,8 @@ class UiWindow:
             self.node.slider_publisher.publish(self.node.msg)
 
         self.node.get_logger().info(f"Published slider value: {self.node.msg.position}")
+    
+    
 
     
 

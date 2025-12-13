@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="https://www.ros.org/wiki/xacro" name="pibot">
+
+  <gazebo>
+    <plugin
+      filename="gz_ros2_control-system"
+      name="gz_ros2_control::GazeboSystem">
+    </plugin>
+  </gazebo>
+
+</robot>
