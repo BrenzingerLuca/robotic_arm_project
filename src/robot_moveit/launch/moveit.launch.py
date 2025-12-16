@@ -19,7 +19,7 @@ def generate_launch_description():
     description_pkg_path = get_package_share_directory("robot_description")
 
     moveit_config = (
-        MoveItConfigsBuilder("robot", package_name="robot_moveit")
+        MoveItConfigsBuilder("pibot", package_name="robot_moveit")
         .robot_description(file_path=os.path.join(description_pkg_path, "urdf", "robot.urdf.xacro"))
         .robot_description_semantic(file_path=os.path.join(moveit_pkg_path, "config", "robot.srdf"))
         .trajectory_execution(file_path=os.path.join(moveit_pkg_path, "config", "moveit_controllers.yaml"))

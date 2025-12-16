@@ -7,13 +7,15 @@
         <joint name="joint_1"/>
         <joint name="joint_2"/>
         <joint name="joint_3"/>
-
-        <joint name="joint_4_fixed_gripper"/>
+        <!-- <joint name="joint_4_fixed_gripper"/> -->
+        <joint name="ee_fixed_joint"/>
     </group>
 
     <group name="gripper">
         <joint name="gripper"/>
     </group>
+
+    <end_effector name="gripper_ee" parent_link="gripper_base" group="gripper" parent_group="arm" link="ee_link"/>
 
     <group_state name="home" group="arm">
         <joint name="joint_1" value="0"/>

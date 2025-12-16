@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /TF1
         - /RobotModel1
         - /RobotModel1/Description Topic1
       Splitter Ratio: 0.5
@@ -53,14 +54,24 @@ Visualization Manager:
       Enabled: true
       Filter (blacklist): ""
       Filter (whitelist): ""
-      Frame Timeout: 15
+      Frame Timeout: 153000
       Frames:
         All Enabled: true
         base_link:
           Value: true
         base_plate:
           Value: true
+        ee_link:
+          Value: true
         first_arm:
+          Value: true
+        gripper_base:
+          Value: true
+        gripper_left:
+          Value: true
+        gripper_right:
+          Value: true
+        second_arm:
           Value: true
         world:
           Value: true
@@ -74,7 +85,14 @@ Visualization Manager:
           base_link:
             base_plate:
               first_arm:
-                {}
+                second_arm:
+                  gripper_base:
+                    ee_link:
+                      {}
+                    gripper_left:
+                      {}
+                    gripper_right:
+                      {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -105,7 +123,31 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        ee_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         first_arm:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper_base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        second_arm:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -168,25 +210,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 10
+      Distance: 3.393627643585205
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 1.6891367435455322
+        Y: -0.21504315733909607
+        Z: 1.1135696172714233
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5853981375694275
+      Pitch: 0.9703978300094604
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.8722146153450012
+      Yaw: 3.0322179794311523
     Saved: ~
 Window Geometry:
   Displays:

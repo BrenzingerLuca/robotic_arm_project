@@ -28,7 +28,7 @@ private:
     {
         try {
             geometry_msgs::msg::TransformStamped t =
-                buffer_.lookupTransform("world", "first_arm", tf2::TimePointZero);
+                buffer_.lookupTransform("world", "ee_link", tf2::TimePointZero);
 
         geometry_msgs::msg::PoseStamped pose_msg;
         pose_msg.header.stamp = this->now();
@@ -44,7 +44,6 @@ private:
 
         // Publisher
         fk_pub_->publish(pose_msg);
-
         }
 
         catch (tf2::TransformException &ex){

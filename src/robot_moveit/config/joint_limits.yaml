@@ -6,28 +6,28 @@ joint_limits:
     has_velocity_limits: true
     max_velocity: 10.0
     has_acceleration_limits: true
-    max_acceleration: 2.0
+    max_acceleration: 8.0
 
   joint_2:
     has_velocity_limits: true
     max_velocity: 10.0
     has_acceleration_limits: true
-    max_acceleration: 2.0
+    max_acceleration: 8.0
 
   joint_3:
     has_velocity_limits: true
     max_velocity: 10.0
     has_acceleration_limits: true
-    max_acceleration: 2.0
+    max_acceleration: 8.0
 
   gripper:
     has_velocity_limits: true
     max_velocity: 10.0
     has_acceleration_limits: true
-    max_acceleration: 2.0
+    max_acceleration: 8.0
 
   gripper2:
     has_velocity_limits: true
     max_velocity: 10.0
     has_acceleration_limits: true
-    max_acceleration: 2.0
+    max_acceleration: 8.0
