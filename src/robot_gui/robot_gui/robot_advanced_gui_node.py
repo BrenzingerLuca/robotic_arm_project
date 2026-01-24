@@ -21,6 +21,7 @@ from control_msgs.action import FollowJointTrajectory
 from control_msgs.action import GripperCommand
 from trajectory_msgs.msg import JointTrajectoryPoint
 from rclpy.action import ActionClient
+from std_msgs.msg import Float64MultiArray
 
 # Custom service interface
 from my_robot_interfaces.srv import MoveToXYZ
@@ -92,9 +93,11 @@ class UiWindow:
         self.node = node
         self.ui_path = ui_path
 
-        # Create a subscriber for to receive the forward kinematics information
+        # Create a subscriber to receive the forward kinematics information
         self.fk_subscriber = self.node.create_subscription(PoseStamped, 'fk_info', self.update_line_edits, 10)
 
+        # Create a subscriber to receive the potentiometer values
+        self.poti_val_subscriber = self.node.create_subscription(Float64MultiArray, 'poti_angles', self.poti_angles_callback, 10)
         """
         - Create a subscriber to update the slider values when in pot controll mode
         - Prevents jumps when switching from Pot to GUI control.
@@ -566,6 +569,30 @@ class UiWindow:
         goal.command.position = position
 
         self.node.gripper_client.send_goal_async(goal)
+
+    def poti_angles_callback(self, msg):
+        """
+        Wird aufgerufen, wenn der Raspberry Pi neue Winkel sendet.
+        """
+        # Nur ausführen, wenn Poti-Steuerung im Dropdown aktiv ist
+        if not self.node.gui_controll_enabled.data:
+            
+            # 1. Trajektorie an den Roboter senden
+            traj = FollowJointTrajectory.Goal()
+            traj.trajectory.joint_names = ['joint_1', 'joint_2', 'joint_3']
+
+            point = JointTrajectoryPoint()
+            # msg.data enthält [rad_1, rad_2, rad_3] vom Pi
+            point.positions = list(msg.data)
+            point.time_from_start.sec = 0
+            point.time_from_start.nanosec = 250_000_000  # 250ms für flüssige Bewegung
+
+            traj.trajectory.points.append(point)
+            
+            # Wichtig: Zeitstempel vom PC setzen (verhindert Fehlermeldungen wegen Zeitunterschieden)
+            traj.trajectory.header.stamp = self.node.get_clock().now().to_msg()
+
+            self.node.trajectory_client.send_goal_async(traj)
     
 
 def main(argv=None):

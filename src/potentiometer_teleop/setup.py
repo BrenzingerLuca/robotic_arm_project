@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'teleop_node = potentiometer_teleop.teleop_node:main',
         ],
     },
 )
