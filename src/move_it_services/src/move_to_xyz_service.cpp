@@ -1,11 +1,12 @@
 #include <memory>
 #include <thread>
-#include <chrono> // Für std::chrono::seconds
+#include <chrono> 
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
-// Interfaces
+// Service and action interfaces used to bridge a simple XYZ request
+// to a MoveIt MoveGroup action call.
 #include "my_robot_interfaces/srv/move_to_xyz.hpp"
 #include "moveit_msgs/action/move_group.hpp"
 #include "moveit_msgs/msg/position_constraint.hpp"
@@ -15,16 +16,33 @@ using MoveToXYZ = my_robot_interfaces::srv::MoveToXYZ;
 using MoveGroup = moveit_msgs::action::MoveGroup;
 using GoalHandleMoveGroup = rclcpp_action::ClientGoalHandle<MoveGroup>;
 
+/**
+ * Node providing a synchronous XYZ motion service on top of MoveIt.
+ *
+ * Intent:
+ * - Expose a simple service-based interface (`/move_to_xyz`)
+ * - Internally translate it into a MoveGroup action request
+ *
+ * Design assumption:
+ * - The robot is already configured in MoveIt
+ * - Planning group "arm" with the last link "ee_link" need to be defined in the robot.srdf
+ */
+
 class MoveXYZServer : public rclcpp::Node
 {
 public:
   MoveXYZServer() : Node("move_xyz_server_cpp")
   {
-    // WICHTIG: Callback Group erstellen (Reentrant)
+    /**
+     * Reentrant group prevents deadlock when synchronously calling 
+     * actions from within a service callback.
+     */
     callback_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
-    // Create the service
-    // ÄNDERUNG HIER: rmw_qos_profile_services_default -> rclcpp::ServicesQoS()
+    /**
+     * Creating the actual service using the custom MoveToXYZ interface 
+     * The interface can be found in the my_robot_interfaces package 
+     */
     service_ = this->create_service<MoveToXYZ>(
       "move_to_xyz",
       std::bind(&MoveXYZServer::handle_service_request, this, std::placeholders::_1, std::placeholders::_2),
@@ -32,21 +50,35 @@ public:
       callback_group_
     );
 
-    // Create the action client
+    /**
+     * Create the action client connected to the MoveGroup action server 
+     * Assumes that MoveGroup action server is available under "/move_action".
+     */
     action_client_ = rclcpp_action::create_client<MoveGroup>(this, "/move_action", callback_group_);
     RCLCPP_INFO(this->get_logger(), "Move to Position Service ready: /move_to_xyz");
   }
 
 private:
+  // Declare the ROS interfaces used by the node 
   rclcpp::Service<MoveToXYZ>::SharedPtr service_;
   rclcpp_action::Client<MoveGroup>::SharedPtr action_client_;
-  rclcpp::CallbackGroup::SharedPtr callback_group_; // Neue Variable
 
+  // Shared callback group to allow service + action processing at the same time
+  rclcpp::CallbackGroup::SharedPtr callback_group_; 
+
+  /**
+   * Service callback translating XYZ requests into MoveIt goals.
+   * - This function blocks while waiting for the action result
+   * - Safe only because of reentrant callback group + multithreaded executor
+   */
   void handle_service_request(const std::shared_ptr<MoveToXYZ::Request> request, std::shared_ptr<MoveToXYZ::Response> response)
   {
-    RCLCPP_INFO(this->get_logger(), "Anfrage: X=%.2f, Y=%.2f, Z=%.2f", request->x, request->y, request->z);
+    RCLCPP_INFO(this->get_logger(), "Request: X=%.2f, Y=%.2f, Z=%.2f", request->x, request->y, request->z);
 
-    // Check if the /move_action client is available
+    /**
+     * Check if the /move_action client is available and fail fast when its not
+     * Necessary to not wait indefinetly
+     */
     if (!action_client_->wait_for_action_server(std::chrono::seconds(2))) {
       response->success = false;
       response->message = "MoveIt Action Server not reachable.";
@@ -54,38 +86,48 @@ private:
       return;
     }
 
-    // Compose the message send to the /move_action client
-    // Further information about the message structure can be found here: 
-    // https://docs.ros.org/en/noetic/api/moveit_msgs/html/action/MoveGroup.html
-
-    // 1. Define planning parameters and group
+    /**
+     * Compose MoveGroup goal.
+     * Documentation reference is important because the message is large
+     * and non-trivial:
+     * https://docs.ros.org/en/noetic/api/moveit_msgs/html/action/MoveGroup.html
+     */
     auto goal_msg = MoveGroup::Goal();
-    // Groups can be found at: robotic_arm_project/src/robot_moveit/config/robot.srdf.xacro
+
+    /**
+     * Planning group name must match the MoveIt SRDF configuration
+     * Found here: robotic_arm_project/src/robot_moveit/config/robot.srdf.xacro
+     */
     goal_msg.request.group_name = "arm"; 
 
+    // Planning parameters tuned for reliability over speed
     goal_msg.request.num_planning_attempts = 10;
     goal_msg.request.allowed_planning_time = 5.0;
 
-    // 2. Define the solution contraints (here as a sphere)
+    /**
+     * Position constraint:
+     * - We use a sphere to allow tolerance instead of a single exact pose
+     * - Orientation is intentionally unconstrained because the robot only has 3 DoF
+     */
     moveit_msgs::msg::PositionConstraint pos_constraint;
+
     // Define the reference frame and target link
     pos_constraint.header.frame_id = "base_link";
     pos_constraint.link_name = "ee_link";        
     pos_constraint.weight = 1.0;
 
-    // Create the sphere with radius 0.05
+    // Spherical constraint region (radius = 5 mm)
     shape_msgs::msg::SolidPrimitive primitive;
     primitive.type = shape_msgs::msg::SolidPrimitive::SPHERE;
     primitive.dimensions = {0.005}; 
 
-    // Here we define the target pose of the target sphere
+    // Target position comes directly from the service request
     geometry_msgs::msg::Pose target_pose;
     target_pose.position.x = request->x;
     target_pose.position.y = request->y;
     target_pose.position.z = request->z;
-    // Orientation can be left out because its a sphere
 
-    // Put the message together
+    // Assemble constraint message
     pos_constraint.constraint_region.primitives.push_back(primitive);
     pos_constraint.constraint_region.primitive_poses.push_back(target_pose);
 
@@ -93,13 +135,18 @@ private:
     constraints.position_constraints.push_back(pos_constraint);
     goal_msg.request.goal_constraints.push_back(constraints);
 
-    // Send the message to the action client 
+    /**
+     * Send goal asynchronously.
+     * Blocking happens later when explicitly waiting for the result.
+     */
     RCLCPP_INFO(this->get_logger(), "Send Goal to MoveIt Client");
     auto send_goal_options = rclcpp_action::Client<MoveGroup>::SendGoalOptions();
     auto goal_handle_future = action_client_->async_send_goal(goal_msg, send_goal_options);
 
-    // Wait for the result of the action client
-    // .get() blockiert hier, aber dank CallbackGroup/MultiThreadedExecutor geht das jetzt!
+    /**
+     * Blocking wait for goal acceptance.
+     * Safe due to executor configuration.
+     */
     auto goal_handle = goal_handle_future.get();
 
     if (!goal_handle) {
@@ -111,7 +158,11 @@ private:
 
     auto result_future = action_client_->async_get_result(goal_handle);
     
-    // Hier ist dein 15-Sekunden-Check
+    /**
+     * Timeout guard:
+     * Prevents the service from hanging indefinitely if planning or execution
+     * stalls inside MoveIt.
+     */
     if (result_future.wait_for(std::chrono::seconds(15)) != std::future_status::ready) {
         response->success = false;
         response->message = "Timeout during the movement.";
@@ -119,7 +170,7 @@ private:
         return;
     }
 
-    // Evaluate the result
+    // Interpret the MoveIt result
     auto result = result_future.get();
 
     if (result.code == rclcpp_action::ResultCode::SUCCEEDED && result.result->error_code.val == 1) {
@@ -139,8 +190,12 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
   auto node = std::make_shared<MoveXYZServer>();
 
-  // Multithread is activated here because both the service and the client need a thread
-  // Wir geben 4 Threads an, um sicherzugehen
+  /**
+   * WHY multithreaded executor:
+   * - Service callback blocks
+   * - Action client requires executor threads to process responses
+   * Thread count > 1 is mandatory to avoid deadlock.
+   */
   rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 4);
   executor.add_node(node);
   executor.spin();

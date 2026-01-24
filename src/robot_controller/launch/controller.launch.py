@@ -9,6 +9,15 @@ import os
 
 def generate_launch_description():
 
+    """
+    Launches the ROS 2 control stack for the robot.
+
+    Intent:
+    - Load the robot description (URDF)
+    - Start ros2_control controller manager
+    - Spawn required controllers in the correct order
+    """
+
     robot_description = ParameterValue(
         Command(
         [
@@ -18,6 +27,12 @@ def generate_launch_description():
         value_type=str,
     )
 
+    """
+    robot_state_publisher:
+    - Publishes TF based on joint states
+    - Required for RViz, MoveIt, and visualization
+    - use_sim_time parameter only important when using Gazebo or IsaacSim
+    """
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -25,6 +40,12 @@ def generate_launch_description():
                      "use_sim_time" : True}]
     )
 
+    """
+    Controller manager (ros2_control_node):
+    - Central manager for all controllers
+    - Loads hardware interfaces from the URDF
+    - Reads controller configuration from YAML
+    """
     controller_manager = Node(
         package="controller_manager",
         executable="ros2_control_node",
@@ -34,6 +55,14 @@ def generate_launch_description():
                                   "robot_controllers.yaml")]
     )
 
+    """
+    Joint State Broadcaster:
+
+    Intent:
+    - Publishes /joint_states -> needed for Rviz, MoveIt and PCA9685 servo controller
+    - Required before any other controller
+    - Must be spawned first
+    """
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -44,6 +73,7 @@ def generate_launch_description():
         ]
     )
 
+    # Loads the JointTrajectoryController for the arm
     arm_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -54,6 +84,7 @@ def generate_launch_description():
         ]
     )
 
+    # Loads the GripperActionController for the gripper
     gripper_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -64,6 +95,12 @@ def generate_launch_description():
         ]
     )
 
+    """
+    Startup order matters:
+    - robot_state_publisher can start immediately
+    - controller_manager must start before spawners
+    - joint_state_broadcaster should be spawned before the other controllers
+    """
     return LaunchDescription([
         robot_state_publisher,
         controller_manager,

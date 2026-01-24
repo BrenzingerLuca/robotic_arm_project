@@ -6,7 +6,6 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
     gripper_controller:
-      # type: joint_trajectory_controller/JointTrajectoryController
       type: position_controllers/GripperActionController
 
     joint_state_broadcaster:
