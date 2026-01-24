@@ -3,15 +3,17 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        # 1. Die neue Teleop-Node (Liest Poti-Werte und sendet Trajectories)
+        # 1. Potentiometer Reader (Reads potentiometer values from the ADC)
+        # It publishes the joint angles to the 'poti_angles' topic
         Node(
-            package='potentiometer_teleop',
-            executable='teleop_node',
-            name='potentiometer_teleop_node',
+            package='potentiometer_reader',
+            executable='poti_reader',
+            name='poti_reader_node',
             output='screen'
         ),
         
-        # 2. Der PCA9685 Servo Controller (Empfängt Befehle und steuert Hardware)
+        # 2. PCA9685 Servo Controller (Receives commands and controls hardware)
+        # This node is responsible for actuating the physical servos
         Node(
             package='pca9685_servo_controller',
             executable='servo_pca_controller',

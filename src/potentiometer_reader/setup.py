@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'potentiometer_teleop'
+package_name = 'potentiometer_reader'
 
 setup(
     name=package_name,
@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'teleop_node = potentiometer_teleop.teleop_node:main',
+            'poti_reader = potentiometer_reader.poti_reader_node:main',
         ],
     },
 )

@@ -572,24 +572,25 @@ class UiWindow:
 
     def poti_angles_callback(self, msg):
         """
-        Wird aufgerufen, wenn der Raspberry Pi neue Winkel sendet.
+        Called whenever the Raspberry Pi sends new joint angles.
         """
-        # Nur ausführen, wenn Poti-Steuerung im Dropdown aktiv ist
+        # Only execute if potentiometer control is selected in the dropdown
         if not self.node.gui_controll_enabled.data:
             
-            # 1. Trajektorie an den Roboter senden
+            # 1. Send trajectory to the robot
             traj = FollowJointTrajectory.Goal()
             traj.trajectory.joint_names = ['joint_1', 'joint_2', 'joint_3']
 
             point = JointTrajectoryPoint()
-            # msg.data enthält [rad_1, rad_2, rad_3] vom Pi
+            # msg.data contains [rad_1, rad_2, rad_3] received from the Pi
             point.positions = list(msg.data)
             point.time_from_start.sec = 0
-            point.time_from_start.nanosec = 250_000_000  # 250ms für flüssige Bewegung
+            point.time_from_start.nanosec = 250_000_000  
 
             traj.trajectory.points.append(point)
             
-            # Wichtig: Zeitstempel vom PC setzen (verhindert Fehlermeldungen wegen Zeitunterschieden)
+            # Important: Use the PC's current clock for the timestamp.
+            # This prevents validation errors caused by time differences between the Pi and the PC.
             traj.trajectory.header.stamp = self.node.get_clock().now().to_msg()
 
             self.node.trajectory_client.send_goal_async(traj)
