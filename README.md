@@ -33,13 +33,26 @@ The project covers:
 
 ## 2. System Architecture <a name="2-system-architecture"></a>
 
-The PI-Bot utilizes a **distributed ROS2 architecture** to balance computational load and ensure low-latency hardware response:
-
-*   **Workstation (Main PC):** Runs high-level nodes including MoveIt2, RViz, and the PySide6 GUI. It handles complex tasks like Inverse Kinematics (IK) and trajectory generation.
-*   **Raspberry Pi 4 (Hardware Controller):** Serves as the Hardware Abstraction Layer (HAL). It runs dedicated nodes for the  and PCA9685 PWM (I2C) drivers.
-*   **Communication:**
+The PI-Bot is built on a **distributed ROS2 architecture**, separating high-level logic from hardware-near execution to ensure modularity and system stability.
 
 ![System Overview](./docs/images/system-overview-color.png)
+*High-level overview of the distributed control loop and node communication.*
+
+### Main PC (High-Level Logic)
+The workstation acts as the "Brain" of the system, running computationally intensive nodes:
+*   **GUI-Node (PySide6):** The central hub for user interaction. It subscribes to `/pot_values` for manual input and `/fk_position` for real-time monitoring. It orchestrates movements by calling the MoveIt2 Action Client.
+*   **MoveIt2 Action Client:** Handles trajectory planning and inverse kinematics (IK). Once a path is planned, it publishes the trajectory points to the `/joint_states` topic.
+*   **Forward Kinematics Node:** A dedicated node that processes joint angles to calculate the end-effector's XYZ position, providing feedback to the GUI.
+*   **RViz Digital Twin:** Subscribes to `/joint_states` to provide a real-time 3D visualization of the robot's physical state.
+
+### Raspberry Pi 4 (Hardware Abstraction Layer)
+The Pi 4 serves as the bridge between the digital ROS2 environment and the physical hardware:
+*   **Potentiometer Node:** Interfaces with the **ADS7830 ADC** via **I2C**. It reads analog signals from the three potentiometers, processes them, and publishes the values to the `/pot_values` topic.
+*   **Servo Controller Node:** Subscribes to the `/joint_states` topic coming from the PC. It translates these states into commands for the **PCA9685 Servo Driver** via **I2C**, which then drives the 4x Servo Motors using PWM signals.
+
+### Communication Layer
+*   **ROS2 Middleware:** All communication between the PC and the Raspberry Pi is handled over the local network using a shared **ROS_DOMAIN_ID**.
+
 
 ## 3. Key Features <a name="3-key-features"></a>
 
