@@ -39,6 +39,46 @@ The PI-Bot utilizes a **distributed ROS2 architecture** to balance computational
 *   **Raspberry Pi 4 (Hardware Controller):** Serves as the Hardware Abstraction Layer (HAL). It runs dedicated nodes for the MCP3008 ADC (SPI) and PCA9685 PWM (I2C) drivers.
 *   **Communication:**
 
+```mermaid
+graph TD
+    %% Subgraph für die Workstation
+    subgraph Workstation [Workstation / Main PC]
+        GUI[PySide6 GUI Center]
+        MoveIt[MoveIt2 Planning Pipeline]
+        RViz[RViz Digital Twin]
+    end
+    
+    %% Netzwerk-Ebene
+    Network((ROS2 Topics / Services over Network))
+
+    %% Subgraph für den Raspberry Pi
+    subgraph RPi [Raspberry Pi 4]
+        ADC_Node[ADC Node - MCP3008]
+        PWM_Node[Servo Controller Node - PCA9685]
+    end
+
+    %% Hardware-Ebene
+    subgraph Hardware [Physical Hardware]
+        Potis[Analog Potentiometers]
+        Servos[3x MG996R Servos]
+    end
+
+    %% Datenflüsse
+    Potis -->|Analog Signal| ADC_Node
+    ADC_Node -->|/joint_states| Network
+    Network -->|Joint State Sync| RViz
+    Network -->|Joint State Sync| GUI
+    
+    GUI -->|Action Goal| MoveIt
+    MoveIt -->|Trajectory| Network
+    Network -->|/servo_commands| PWM_Node
+    PWM_Node -->|PWM Signal| Servos
+
+    %% Styling
+    style Workstation fill:#f9f,stroke:#333,stroke-width:2px
+    style RPi fill:#bbf,stroke:#333,stroke-width:2px
+    style Network fill:#dfd,stroke:#333,stroke-dasharray: 5 5
+```
 ---
 
 ## 3. Key Features <a name="3-key-features"></a>
