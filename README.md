@@ -39,7 +39,7 @@ The PI-Bot utilizes a **distributed ROS2 architecture** to balance computational
 *   **Raspberry Pi 4 (Hardware Controller):** Serves as the Hardware Abstraction Layer (HAL). It runs dedicated nodes for the MCP3008 ADC (SPI) and PCA9685 PWM (I2C) drivers.
 *   **Communication:**
 
-![System Overview](./docs/images/system-overview.svg)
+![System Overview](./docs/images/system-overview-bw.png)
 
 ## 3. Key Features <a name="3-key-features"></a>
 
