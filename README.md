@@ -36,10 +36,10 @@ The project covers:
 The PI-Bot utilizes a **distributed ROS2 architecture** to balance computational load and ensure low-latency hardware response:
 
 *   **Workstation (Main PC):** Runs high-level nodes including MoveIt2, RViz, and the PySide6 GUI. It handles complex tasks like Inverse Kinematics (IK) and trajectory generation.
-*   **Raspberry Pi 4 (Hardware Controller):** Serves as the Hardware Abstraction Layer (HAL). It runs dedicated nodes for the MCP3008 ADC (SPI) and PCA9685 PWM (I2C) drivers.
+*   **Raspberry Pi 4 (Hardware Controller):** Serves as the Hardware Abstraction Layer (HAL). It runs dedicated nodes for the  and PCA9685 PWM (I2C) drivers.
 *   **Communication:**
 
-![System Overview](./docs/images/system-overview-bw.png)
+![System Overview](./docs/images/system-overview-color.png)
 
 ## 3. Key Features <a name="3-key-features"></a>
 
