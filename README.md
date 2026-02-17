@@ -87,8 +87,11 @@ The Pi 4 serves as the bridge between the digital ROS2 environment and the physi
 
 The **PI-Bot Control Center** is a PySide6 (Qt)-based HMI providing centralized control, state monitoring, motion teaching, and direct servo manipulation via sliders.
 
-![PI-Bot GUI Interface](./docs/images/GUI.png)
-Figure: The PI-Bot Control Center showing a programmed stacking sequence.
+<p align="center">
+  <img src="./docs/images/GUI.png" alt="Physical PI-Bot" />
+  <br>
+  <em>Figure: The PI-Bot Control Center showing a programmed stacking sequence.</em>
+</p>
 
 ## Core Interface Components
 
@@ -163,22 +166,22 @@ A core feature of the PI-Bot is the implementation of a **Digital Twin**. This v
 
 ### Wiring Diagram
 
-<p align="left">
-  <img src="./docs/images/wiring_diagram.png" width="70%" alt="Visual Wiring Diagram" />
+<p align="center">
+  <img src="./docs/images/wiring_diagram.png" width="60%" alt="Visual Wiring Diagram" />
   <br>
   <em>Figure: Visual wiring overview.</em>
 </p>
 
 ### Real-Life Implementation
 
-<p align="left">
-  <img src="./docs/images/real_wiring_photo.jpg" width="70%" alt="Physical Wiring" />
+<p align="center">
+  <img src="./docs/images/real_wiring_photo.jpg" width="60%" alt="Physical Wiring" />
   <br>
   <em>Figure: Physical hardware setup.</em>
 </p>
 
 ### Schematic Diagram
-<p align="left">
+<p align="center">
   <img src="./docs/images/schematic_diagram.png" width="70%" alt="Physical Wiring" />
   <br>
   <em>Figure: Visual wiring schematic.</em>
