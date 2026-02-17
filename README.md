@@ -207,11 +207,18 @@ This project is developed and tested on **Ubuntu 24.04 (Noble Numbat)**.
 
 - **OS:** Ubuntu 24.04 (Noble Numbat)
 - **ROS 2 Jazzy:** Installed -> https://docs.ros.org/en/jazzy/Installation.html
+- **Python-Version**: 3.12
 - **Network:**  
   - Both devices must be in the **same network**  
   - `ROS_DOMAIN_ID` must **match on both machines**
 
-Before building the project, ensure rosdep is initialized and updated: 
+Before setting up the workspace, you must install the ROS 2 build tools (`colcon`) and the dependency manager (`rosdep`). 
+```bash
+# Install colcon, rosdep, and python tools
+sudo apt update
+sudo apt install python3-colcon-common-extensions python3-rosdep python3-pip python3-venv -y
+```
+
 ```bash
 sudo rosdep init
 rosdep update
@@ -226,25 +233,46 @@ In this mode, no hardware interaction is available, but the robot model in RViz 
 git clone https://github.com/BrenzingerLuca/robotic_arm_project.git
 cd robotic_arm_project
 ```
-**2. Install dependencies**
-```bash
-# Install Python requirements
-pip install -r requirements.txt --break-system-packages
+**2. Python Environment Setup**    
 
-# Install ROS 2 dependencies
+
+Option A: Using a Virtual Environment (Recommended)
+Since Ubuntu 24.04 and ROS 2 rely on system-level Python packages, we create a virtual environment that can access these system packages.
+```bash
+# Create a virtual environment
+python3 -m venv --system-site-packages .venv
+
+# Activate the environment
+source .venv/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+```
+Note: You must run source .venv/bin/activate in every new terminal window
+
+Option B: Global Install (Alternative)
+```bash
+pip install -r requirements.txt --break-system-packages
+```
+**3. Install ROS 2 Dependencies**
+```bash
+# 1. Source the global ROS 2 installation
+source /opt/ros/jazzy/setup.bash
+
+# 2. Install project-specific dependencies
 rosdep install --from-paths src --ignore-src -r -y
 ```
-**3. Build and Source**
+
+**4. Build and Source**
 ```bash
-# Build the workspace
+# Build the project
 colcon build --symlink-install
 
-# Source the workspace
-source /opt/ros/jazzy/setup.bash
+# Source the local workspace
 source install/setup.bash
 ```
 
-**4. Launch**
+**5. Launch**
 ```bash
 ros2 launch robot_gui pibot_gui.launch.py
 ```
