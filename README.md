@@ -51,7 +51,7 @@ The project covers:
 The PI-Bot is built on a **distributed ROS2 architecture**, separating high-level logic from hardware-near execution to ensure modularity and system stability.
 
 ![System Overview](./docs/images/system-overview-color-bright.png)
-*High-level overview of the distributed control loop and node communication.*
+*Figure: High-level overview of the distributed control loop and node communication.*
 
 ### Main PC (High-Level Logic)
 The workstation acts as the "Brain" of the system, running computationally intensive nodes:
@@ -101,11 +101,11 @@ The **PI-Bot Control Center** is a PySide6 (Qt)-based HMI providing centralized 
 
 ### Joint-Space Manipulation (Bottom Left)
 - **Interactive Sliders:** Direct control of all three joints and the gripper.  
-- **Bi-directional Sync:** Sliders continuously reflect the robot’s physical state, including movements from external potentiometers or RViz interactive markers.
+- **Bi-directional Sync:** Sliders continuously reflect the robot’s physical state, including movements from external potentiometers or those triggered by the “Send Desired Position” or “Sequence” functionality.
 
 ### Teach-In Panel (Right)
 - **Sequence Recorder:**  
-  - **“Save Position”** stores the current spatial pose.  
+  - **“Save Position”** stores the current spatial position.  
   - **“Save Grip”** stores the current gripper state.  
 - **Automation Workflow:**  
   - The table holds command types:  
@@ -160,7 +160,7 @@ A core feature of the PI-Bot is the implementation of a **Digital Twin**. This v
 | **PCA9685 Driver** | 1 | I2C (0x40) | 16-channel PWM controller for servos |
 | **MZ996 Servos** | 2 | PWM | High-torque servos for the base and the first arm|
 | **9G Micro Servo** | 2 | PWM | Lightweight servo for the gripper mechanism and upper arm|
-| **Potentiometers** | 3 | Analog | 10k Ohm linear pots for HIL control |
+| **Potentiometers** | 3 | Analog | 10k Ohm linear potentiometers for HIL control |
 | **Power Supply** | 1 | DC | External 5V/10A supply for Servo Driver |
 
 
@@ -191,7 +191,7 @@ A core feature of the PI-Bot is the implementation of a **Digital Twin**. This v
 ### Implementation Details
 
 *   **I2C Bus Management:** Both the **ADS7830** (ADC) and the **PCA9685** (PWM Driver) share the same I2C bus using unique hardware addresses (`0x48` and `0x40`). This keeps the wiring simple and modular.
-*   **External Power Architecture:** The Raspberry Pi alone cannot provide enough current for four servos, especially during high-torque startup. I implemented an **external 5V/4A power supply** connected via the **PCA9685's power terminal**
+*   **External Power Architecture:** The Raspberry Pi alone cannot provide enough current for four servos, especially during high-torque startup. I implemented an **external 5V/10A power supply** connected via the **PCA9685's power terminal**
 *   **Sensor Precision:** The **ADS7830** provides 8-bit resolution (0–255). Mapping 255 steps to the 180° range of the servos results in a precision of **~0.7° per step**, which is more than sufficient for smooth manual manipulation via potentiometers.
 *   **Signal Integrity & Motion Smoothing:** To mitigate signal noise and prevent mechanical jitter, I implemented an **Exponential Smoothing Filter (Low-pass)** within the Servo Controller node. This ensures fluid joint transitions and protects the hardware from abrupt accelerations.
 
@@ -274,7 +274,7 @@ Building the **PI-Bot** as a solo project involved several technical hurdles. Be
 *   **Challenge:** Initial tests showed significant servo jitter and occasional system resets when moving multiple joints simultaneously.
 *   **Solution:** 
     *   **Hardware:** Offloaded PWM generation to a dedicated **PCA9685 controller** to ensure stable timing independent of the Raspberry Pi's CPU load.
-    *   **Power:** Implemented a separate **external 5V/4A power rail** for the servos to prevent voltage drops on the Pi's logic board during high-torque movements.
+    *   **Power:** Implemented a separate **external 5V/10A power rail** for the servos to prevent voltage drops on the Pi's logic board during high-torque movements.
     *   **Software:** Integrated an **Exponential Smoothing filter** (digital low-pass) in the `ServoController` node to clean up noisy analog signals from the potentiometers.
 
 ### Seamless Control Mode Transitions
