@@ -212,7 +212,7 @@ This project is developed and tested on **Ubuntu 24.04 (Noble Numbat)**.
   - Both devices must be in the **same network**  
   - `ROS_DOMAIN_ID` must **match on both machines**
 
-Before setting up the workspace, you must install the ROS 2 build tools (`colcon`) and the dependency manager (`rosdep`). 
+Before setting up the workspace, you must install the ROS 2 build tools (`colcon`), the dependency manager (`rosdep`) and some python tools. 
 ```bash
 # Install colcon, rosdep, and python tools
 sudo apt update
@@ -236,7 +236,7 @@ cd robotic_arm_project
 **2. Python Environment Setup**    
 
 
-Option A: Using a Virtual Environment (Recommended)
+Option A: Using a Virtual Environment (Recommended).
 Since Ubuntu 24.04 and ROS 2 rely on system-level Python packages, we create a virtual environment that can access these system packages.
 ```bash
 # Create a virtual environment
