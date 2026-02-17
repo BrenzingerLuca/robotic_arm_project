@@ -83,7 +83,7 @@ The Pi 4 serves as the bridge between the digital ROS2 environment and the physi
 *   **Asynchronous Processing:** Multi-threaded Python/Qt implementation to keep the UI responsive during long-running trajectory executions and service/action calls.
 
 ---
-## 4. PI-Bot Control Center (GUI) 
+## 4. PI-Bot Control Center (GUI) <a name="4-gui"></a>
 
 The **PI-Bot Control Center** is a PySide6 (Qt)-based HMI providing centralized control, state monitoring, motion teaching, and direct servo manipulation via sliders.
 
