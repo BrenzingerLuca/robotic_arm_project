@@ -1,0 +1,11 @@
+# Hardware & Drivers
+adafruit-blinka
+adafruit-circuitpython-pca9685
+gpiozero
+smbus2
+
+# GUI Framework
+PySide6
+
+# Math
+numpy

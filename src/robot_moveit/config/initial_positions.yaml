@@ -1,5 +1,5 @@
 initial_position:
   joint_1: 0
   joint_2: 0
-  joint_3: 0
+  joint_3: 1.57
   gripper: 0
