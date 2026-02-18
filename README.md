@@ -31,7 +31,7 @@ robotic_arm_project/
 ## 1. Project Overview & Demo <a name="1-project-overview--demo"></a>
 
 ### Demo
-![PI-Bot Stacking Sequence](HIER_LINK_ZU_DEINEM_GIF_ODER_VIDEO_EINSETZEN)
+![Demo Meines Projekts](docs/gif/2_blocks_robot_demo.gif)
 *The PI-Bot autonomously performing a pick-and-place task, synchronized with its Digital Twin in RViz.*
 
 ### About the Project
