@@ -29,13 +29,17 @@ robotic_arm_project/
 ```
 
 ## 1. Project Overview & Demo <a name="1-project-overview--demo"></a>
-
-### Demo
-![Demo Meines Projekts](docs/gif/2_blocks_robot_demo.gif)
-*The PI-Bot autonomously performing a pick-and-place task, synchronized with its Digital Twin in RViz.*
+<p align="center">
+  <img src="docs/gif/2_blocks_robot_demo.gif" width="800" alt="Projekt Demo">
+</p>
 
 ### About the Project
 The **PI-Bot** is a custom-engineered, 3D printed, 3-DOF robotic arm designed as a full-stack robotics project. It demonstrates the seamless integration of distributed software systems, real-time hardware interaction, and motion planning. 
+
+**Core Motivation & Software Focus**
+The primary goal of this project was to master the software stack, specifically to understand **MoveIt** and motion planning architectures from the ground up. To bridge the gap between theory and reality, I implemented the system using 3D-printed parts and budget-friendly servos. 
+
+While this accessible hardware introduces some mechanical imprecision, it served its purpose as a verification platform for the software. Future iterations will focus on hardware refinement to improve physical accuracy, though the core of this project remains a deep dive into robotics software engineering.
 
 The project covers:
 *   **Mechanical Design in CAD:** 3-axis manipulator with gripper.
