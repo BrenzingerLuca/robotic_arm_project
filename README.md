@@ -220,7 +220,7 @@ Before setting up the workspace, you must install the ROS 2 build tools (`colcon
 ```bash
 # Install colcon, rosdep, and python tools
 sudo apt update
-sudo apt install python3-colcon-common-extensions python3-rosdep python3-pip python3-venv -y
+sudo apt install python3-colcon-common-extensions python3-rosdep python3-pip -y
 ```
 
 ```bash
@@ -239,22 +239,8 @@ cd robotic_arm_project
 ```
 **2. Python Environment Setup**    
 
+**Important**: Virtual environments often cause path conflicts between ROS 2 and PySide6. To ensure seamless library discovery and communication, install requirements globally using the --break-system-packages flag instead of a venv.
 
-Option A: Using a Virtual Environment (Recommended).
-Since Ubuntu 24.04 and ROS 2 rely on system-level Python packages, we create a virtual environment that can access these system packages.
-```bash
-# Create a virtual environment
-python3 -m venv --system-site-packages .venv
-
-# Activate the environment
-source .venv/bin/activate
-
-# Install requirements
-pip install -r requirements.txt
-```
-Note: You must run source .venv/bin/activate in every new terminal window
-
-Option B: Global Install (Alternative)
 ```bash
 pip install -r requirements.txt --break-system-packages
 ```

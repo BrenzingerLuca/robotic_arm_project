@@ -428,15 +428,15 @@ class UiWindow:
                 self.node.get_logger().info(f"Erfolg: {response.message}")
                 # Disable slider synchronization after delay 
                 # The delay is necessary to let the sliders catch up 
-                QtCore.QTimer.singleShot(2000, lambda: self.set_sync_sliders_flag(False))
+                QtCore.QTimer.singleShot(4000, lambda: self.set_sync_sliders_flag(False))
                 self.node.get_logger().info(f"sync_sliders = {self.sync_sliders}")
             else:
                 self.node.get_logger().error(f"Fehler: {response.message}")
-                QtCore.QTimer.singleShot(2000, lambda: self.set_sync_sliders_flag(False))
+                QtCore.QTimer.singleShot(4000, lambda: self.set_sync_sliders_flag(False))
                 self.node.get_logger().info(f"sync_sliders = {self.sync_sliders}")
         except Exception as e:
             self.node.get_logger().error(f"Service Call fehlgeschlagen: {e}")
-            QtCore.QTimer.singleShot(2000, lambda: self.set_sync_sliders_flag(False))
+            QtCore.QTimer.singleShot(4000, lambda: self.set_sync_sliders_flag(False))
             self.node.get_logger().info(f"sync_sliders = {self.sync_sliders}")
         
         # Handle sequence continuation
@@ -449,7 +449,7 @@ class UiWindow:
 
             else:
                 self.node.get_logger().info("Sequence finished.")
-                QtCore.QTimer.singleShot(2000, lambda: self.set_sync_sliders_flag(False))
+                QtCore.QTimer.singleShot(4000, lambda: self.set_sync_sliders_flag(False))
                 self.node.get_logger().info(f"sync_sliders = {self.sync_sliders}")
 
     def gripper_get_result_callback(self, future):
