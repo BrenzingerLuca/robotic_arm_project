@@ -267,6 +267,7 @@ source install/setup.bash
 ros2 launch robot_gui pibot_gui.launch.py
 ```
 After launching, the robot displayed in RViz can be controlled using the GUI and MoveIt, enabling motion planning and visualization without requiring the physical hardware.
+**Known issue:** On the first launch RViz might fail to update the robot's pose. If the sliders have no effect, restart the program (Ctrl+C and relaunch).
 
 ### Raspberri Pi (Hardware Controller)
 This step is only required if the necessary hardware is available.
